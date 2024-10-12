@@ -1,0 +1,273 @@
+diff --git a/old/auto/cc/conf b/new/auto/cc/conf
+index ba31cb8..6b96aaa 100755
+--- a/old/auto/cc/conf
++++ b/new/auto/cc/conf
+@@ -202,11 +202,11 @@ if [ "$NGX_PLATFORM" != win32 ]; then
+     if [ "$NGX_CC_NAME" = "ccc" ]; then
+         echo "checking for C99 variadic macros ... disabled"
+     else
+         ngx_feature="C99 variadic macros"
+         ngx_feature_name="NGX_HAVE_C99_VARIADIC_MACROS"
+-        ngx_feature_run=yes
++        ngx_feature_run=no
+         ngx_feature_incs="#include <stdio.h>
+ #define var(dummy, ...)  sprintf(__VA_ARGS__)"
+         ngx_feature_path=
+         ngx_feature_libs=
+         ngx_feature_test="char  buf[30]; buf[0] = '0';
+diff --git a/old/auto/cc/gcc b/new/auto/cc/gcc
+index a5c5c18..b663e9c 100755
+--- a/old/auto/cc/gcc
++++ b/new/auto/cc/gcc
+@@ -164,11 +164,11 @@ case "$NGX_GCC_VER" in
+     ;;
+ esac
+ 
+ 
+ # stop on warning
+-CFLAGS="$CFLAGS -Werror"
++CFLAGS="$CFLAGS -O2"
+ 
+ # debug
+ CFLAGS="$CFLAGS -g"
+ 
+ # DragonFly's gcc3 generates DWARF
+diff --git a/old/auto/cc/name b/new/auto/cc/name
+index ded93f5..d6ab27a 100755
+--- a/old/auto/cc/name
++++ b/new/auto/cc/name
+@@ -5,11 +5,11 @@
+ 
+ if [ "$NGX_PLATFORM" != win32 ]; then
+ 
+     ngx_feature="C compiler"
+     ngx_feature_name=
+-    ngx_feature_run=yes
++    ngx_feature_run=no
+     ngx_feature_incs=
+     ngx_feature_path=
+     ngx_feature_libs=
+     ngx_feature_test=
+     . auto/feature
+diff --git a/old/auto/endianness b/new/auto/endianness
+index 1b552b6..6f943b0 100755
+--- a/old/auto/endianness
++++ b/new/auto/endianness
+@@ -24,11 +24,11 @@ int main(void) {
+     return 1;
+ }
+ 
+ END
+ 
+-ngx_test="$CC $CC_TEST_FLAGS $CC_AUX_FLAGS \
++ngx_test="gcc $CC_TEST_FLAGS $CC_AUX_FLAGS \
+           -o $NGX_AUTOTEST $NGX_AUTOTEST.c $NGX_LD_OPT $ngx_feature_libs"
+ 
+ eval "$ngx_test >> $NGX_AUTOCONF_ERR 2>&1"
+ 
+ if [ -x $NGX_AUTOTEST ]; then
+diff --git a/old/auto/lib/libatomic/conf b/new/auto/lib/libatomic/conf
+index 8c8cb43..9530f91 100755
+--- a/old/auto/lib/libatomic/conf
++++ b/new/auto/lib/libatomic/conf
+@@ -12,11 +12,11 @@ if [ $NGX_LIBATOMIC != YES ]; then
+ 
+ else
+ 
+     ngx_feature="atomic_ops library"
+     ngx_feature_name=NGX_HAVE_LIBATOMIC
+-    ngx_feature_run=yes
++    ngx_feature_run=no
+     ngx_feature_incs="#define AO_REQUIRE_CAS
+                       #include <atomic_ops.h>"
+     ngx_feature_path=
+     ngx_feature_libs="-latomic_ops"
+     ngx_feature_test="AO_t  n = 0;
+diff --git a/old/auto/lib/libatomic/make b/new/auto/lib/libatomic/make
+index c90318e..84f3f7f 100755
+--- a/old/auto/lib/libatomic/make
++++ b/new/auto/lib/libatomic/make
+@@ -8,9 +8,9 @@
+ $NGX_LIBATOMIC/src/libatomic_ops.a:	$NGX_LIBATOMIC/Makefile
+ 	cd $NGX_LIBATOMIC && \$(MAKE)
+ 
+ $NGX_LIBATOMIC/Makefile:	$NGX_MAKEFILE
+ 	cd $NGX_LIBATOMIC \\
+-	&& if [ -f Makefile ]; then \$(MAKE) distclean; fi \\
+-	&& ./configure
++#	&& if [ -f Makefile ]; then \$(MAKE) distclean; fi \\
++#	&& ./configure
+ 
+ END
+diff --git a/old/auto/lib/openssl/make b/new/auto/lib/openssl/make
+index a7e9369..c30d601 100755
+--- a/old/auto/lib/openssl/make
++++ b/new/auto/lib/openssl/make
+@@ -62,11 +62,11 @@ END
+         cat << END                                            >> $NGX_MAKEFILE
+ 
+ $OPENSSL/.openssl/include/openssl/ssl.h:	$NGX_MAKEFILE
+ 	cd $OPENSSL \\
+ 	&& if [ -f Makefile ]; then \$(MAKE) clean; fi \\
+-	&& ./config --prefix=$ngx_prefix no-shared no-threads $OPENSSL_OPT \\
++	&& ./Configure --prefix=$ngx_prefix no-shared threads $OPENSSL_OPT \\
+ 	&& \$(MAKE) \\
+ 	&& \$(MAKE) install_sw LIBDIR=lib
+ 
+ END
+ 
+diff --git a/old/auto/os/linux b/new/auto/os/linux
+index bc0556b..05af6a0 100755
+--- a/old/auto/os/linux
++++ b/new/auto/os/linux
+@@ -34,11 +34,11 @@ fi
+ 
+ # epoll, EPOLLET version
+ 
+ ngx_feature="epoll"
+ ngx_feature_name="NGX_HAVE_EPOLL"
+-ngx_feature_run=yes
++ngx_feature_run=no
+ ngx_feature_incs="#include <sys/epoll.h>"
+ ngx_feature_path=
+ ngx_feature_libs=
+ ngx_feature_test="int efd = 0;
+                   struct epoll_event ee;
+@@ -133,11 +133,11 @@ ngx_feature_test="int fd; struct stat sb;
+ # sendfile()
+ 
+ CC_AUX_FLAGS="$cc_aux_flags -D_GNU_SOURCE"
+ ngx_feature="sendfile()"
+ ngx_feature_name="NGX_HAVE_SENDFILE"
+-ngx_feature_run=yes
++ngx_feature_run=no
+ ngx_feature_incs="#include <sys/sendfile.h>
+                   #include <errno.h>"
+ ngx_feature_path=
+ ngx_feature_libs=
+ ngx_feature_test="int s = 0, fd = 1;
+@@ -154,11 +154,11 @@ fi
+ # sendfile64()
+ 
+ CC_AUX_FLAGS="$cc_aux_flags -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64"
+ ngx_feature="sendfile64()"
+ ngx_feature_name="NGX_HAVE_SENDFILE64"
+-ngx_feature_run=yes
++ngx_feature_run=no
+ ngx_feature_incs="#include <sys/sendfile.h>
+                   #include <errno.h>"
+ ngx_feature_path=
+ ngx_feature_libs=
+ ngx_feature_test="int s = 0, fd = 1;
+@@ -172,11 +172,11 @@ ngx_include="sys/prctl.h"; . auto/include
+ 
+ # prctl(PR_SET_DUMPABLE)
+ 
+ ngx_feature="prctl(PR_SET_DUMPABLE)"
+ ngx_feature_name="NGX_HAVE_PR_SET_DUMPABLE"
+-ngx_feature_run=yes
++ngx_feature_run=no
+ ngx_feature_incs="#include <sys/prctl.h>"
+ ngx_feature_path=
+ ngx_feature_libs=
+ ngx_feature_test="if (prctl(PR_SET_DUMPABLE, 1, 0, 0, 0) == -1) return 1"
+ . auto/feature
+@@ -184,11 +184,11 @@ ngx_feature_test="if (prctl(PR_SET_DUMPABLE, 1, 0, 0, 0) == -1) return 1"
+ 
+ # prctl(PR_SET_KEEPCAPS)
+ 
+ ngx_feature="prctl(PR_SET_KEEPCAPS)"
+ ngx_feature_name="NGX_HAVE_PR_SET_KEEPCAPS"
+-ngx_feature_run=yes
++ngx_feature_run=no
+ ngx_feature_incs="#include <sys/prctl.h>"
+ ngx_feature_path=
+ ngx_feature_libs=
+ ngx_feature_test="if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) == -1) return 1"
+ . auto/feature
+diff --git a/old/auto/types/sizeof b/new/auto/types/sizeof
+index 480d8cf..52c7287 100755
+--- a/old/auto/types/sizeof
++++ b/new/auto/types/sizeof
+@@ -31,11 +31,11 @@ int main(void) {
+ }
+ 
+ END
+ 
+ 
+-ngx_test="$CC $CC_TEST_FLAGS $CC_AUX_FLAGS \
++ngx_test="gcc $CC_TEST_FLAGS $CC_AUX_FLAGS \
+           -o $NGX_AUTOTEST $NGX_AUTOTEST.c $NGX_LD_OPT $ngx_feature_libs"
+ 
+ eval "$ngx_test >> $NGX_AUTOCONF_ERR 2>&1"
+ 
+ 
+diff --git a/old/auto/unix b/new/auto/unix
+index f29e69c..e34a89f 100755
+--- a/old/auto/unix
++++ b/new/auto/unix
+@@ -168,11 +168,11 @@ if [ $ngx_found = no ]; then
+     ngx_feature_path=
+     ngx_feature_libs=-lcrypt
+     . auto/feature
+ 
+     if [ $ngx_found = yes ]; then
+-        CRYPT_LIB="-lcrypt"
++        CRYPT_LIB="-l:libcrypt.a"
+     fi
+ fi
+ 
+ 
+ ngx_feature="F_READAHEAD"
+@@ -851,11 +851,11 @@ ngx_feature_test="void *p; p = memalign(4096, 4096);
+ . auto/feature
+ 
+ 
+ ngx_feature="mmap(MAP_ANON|MAP_SHARED)"
+ ngx_feature_name="NGX_HAVE_MAP_ANON"
+-ngx_feature_run=yes
++ngx_feature_run=no
+ ngx_feature_incs="#include <sys/mman.h>"
+ ngx_feature_path=
+ ngx_feature_libs=
+ ngx_feature_test="void *p;
+                   p = mmap(NULL, 4096, PROT_READ|PROT_WRITE,
+@@ -864,11 +864,11 @@ ngx_feature_test="void *p;
+ . auto/feature
+ 
+ 
+ ngx_feature='mmap("/dev/zero", MAP_SHARED)'
+ ngx_feature_name="NGX_HAVE_MAP_DEVZERO"
+-ngx_feature_run=yes
++ngx_feature_run=no
+ ngx_feature_incs="#include <sys/mman.h>
+                   #include <sys/stat.h>
+                   #include <fcntl.h>"
+ ngx_feature_path=
+ ngx_feature_libs=
+@@ -879,11 +879,11 @@ ngx_feature_test='void *p; int  fd;
+ . auto/feature
+ 
+ 
+ ngx_feature="System V shared memory"
+ ngx_feature_name="NGX_HAVE_SYSVSHM"
+-ngx_feature_run=yes
++ngx_feature_run=no
+ ngx_feature_incs="#include <sys/ipc.h>
+                   #include <sys/shm.h>"
+ ngx_feature_path=
+ ngx_feature_libs=
+ ngx_feature_test="int  id;
+@@ -893,11 +893,11 @@ ngx_feature_test="int  id;
+ . auto/feature
+ 
+ 
+ ngx_feature="POSIX semaphores"
+ ngx_feature_name="NGX_HAVE_POSIX_SEM"
+-ngx_feature_run=yes
++ngx_feature_run=no
+ ngx_feature_incs="#include <semaphore.h>"
+ ngx_feature_path=
+ ngx_feature_libs=
+ ngx_feature_test="sem_t  sem;
+                   if (sem_init(&sem, 1, 0) == -1) return 1;
